@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import styles from "../modules/Main.module.css";
 import { assets } from "../assets/assets";
 import { GeminiContext } from "../contexts/GeminiAPIContext";
+import useWindowResize from "../custom-hook/UseWindowResize";
 
 const Main = () => {
   const {
@@ -13,8 +14,11 @@ const Main = () => {
     currentPrompt,
   } = useContext(GeminiContext);
 
+  const { windowSize } = useWindowResize();
+  const { width, height } = windowSize;
+
   return (
-    <div className={styles.main}>
+    <div style={{ height: height }} className={styles.main}>
       <div className={styles.nav}>
         <div className={styles.logo}>
           <p>Gemini</p>
