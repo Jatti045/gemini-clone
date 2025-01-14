@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import styles from "../modules/Sidebar.module.css";
 import { assets } from "../assets/assets";
 import { GeminiContext } from "../contexts/GeminiAPIContext";
+import useWindowResize from "../custom-hook/UseWindowResize";
 
 const Sidebar = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -9,8 +10,14 @@ const Sidebar = () => {
   const { recentChats, getGeminiResponse, openNewChat } =
     useContext(GeminiContext);
 
+  const { windowSize } = useWindowResize();
+  const { width, height } = windowSize;
+
   return (
-    <div className={`${isVisible ? styles.minWidth : null} ${styles.sidebar}`}>
+    <div
+      style={{ height: height }}
+      className={`${isVisible ? styles.minWidth : null} ${styles.sidebar}`}
+    >
       <div className={styles.top}>
         <div
           onClick={() => setIsVisible((prevVisibility) => !prevVisibility)}
