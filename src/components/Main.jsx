@@ -1,8 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import styles from "../modules/Main.module.css";
 import { assets } from "../assets/assets";
 import { GeminiContext } from "../contexts/GeminiAPIContext";
 import useWindowResize from "../custom-hook/UseWindowResize";
+import useAuthProvider from "../store/useAuthProvider";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../auth/firebaseCongig";
+import { ClipLoader } from "react-spinners";
 
 const Main = () => {
   const {
@@ -17,6 +21,30 @@ const Main = () => {
   const { windowSize } = useWindowResize();
   const { width, height } = windowSize;
 
+  const authProvider = useAuthProvider((state) => state);
+  const { user, userLoading } = authProvider;
+  const { signInWithGoogle, logOutOfGoogle, setUser, setUserLoading } =
+    authProvider.actions;
+
+  useEffect(() => {
+    setUserLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      }
+    });
+
+    setTimeout(() => {
+      setUserLoading(false);
+    }, 100);
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  console.log(userLoading);
+
   return (
     <div style={{ height: height }} className={styles.main}>
       <div className={styles.nav}>
@@ -24,7 +52,12 @@ const Main = () => {
           <p>Gemini</p>
         </div>
         <div className={styles.userIcon}>
-          <img src={assets.gemini_icon} alt="" />
+          <button
+            onClick={user ? () => logOutOfGoogle() : () => signInWithGoogle()}
+            className={styles.signUpButton}
+          >
+            <span>{user ? "Log Out" : "Sign Up"}</span>
+          </button>
         </div>
       </div>
       {loading ? (
@@ -61,9 +94,13 @@ const Main = () => {
         </div>
       ) : (
         <div className={styles.username}>
-          <div>
-            <span>Hello, Dev</span>
-          </div>
+          {userLoading ? (
+            <ClipLoader color="#3498db" loading={userLoading} size={50} />
+          ) : (
+            <div>
+              <span>{user ? `Hello, ${user.displayName}` : "Hello, Dev"}</span>
+            </div>
+          )}
         </div>
       )}
 
